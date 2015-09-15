@@ -1,0 +1,20 @@
+name:                dimensional-dk-vector-instances
+version:             0.1.0.0
+synopsis:            Vector instances for Dimensional quantities
+homepage:            https://github.com/albertov/dimensional-dk-vector-instances
+license:             BSD3
+license-file:        LICENSE
+author:              Alberto Valverde
+maintainer:          alberto@toscat.net
+copyright:           2015
+category:            Math
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Numeric.Units.Dimensional.DK.Vector
+  build-depends:       base >=4.8 && <4.9
+                     , dimensional-dk >=0.8 && <0.9
+                     , vector >=0.11
+  default-language:    Haskell2010
+  ghc-options:       -Wall
