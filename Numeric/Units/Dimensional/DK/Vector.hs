@@ -4,6 +4,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Numeric.Units.Dimensional.DK.Vector () where
@@ -24,18 +25,16 @@ instance Storable a => Storable (Quantity d a) where
   {-# INLINE sizeOf #-}
   alignment _ = alignment (undefined::a)
   {-# INLINE alignment #-}
-  poke ptr = poke ptr . unsafeCoerce
+  poke ptr = poke (castPtr ptr :: Ptr a) . unsafeCoerce
   {-# INLINE poke #-}
   peek ptr = liftM unsafeCoerce (peek (castPtr ptr :: Ptr a))
   {-# INLINE peek #-}
 
-data instance U.Unbox a =>
-  U.Vector (Quantity d a) =  V_Quantity {unVQ :: U.Vector a}
-data instance U.Unbox a =>
-  U.MVector s (Quantity d a) = MV_Quantity {unMVQ :: U.MVector s a}
+newtype instance U.Vector (Quantity d a)    =  V_Quantity {unVQ :: U.Vector a}
+newtype instance U.MVector s (Quantity d a) = MV_Quantity {unMVQ :: U.MVector s a}
 instance U.Unbox a => U.Unbox (Quantity d a)
 
-instance U.Unbox a => M.MVector U.MVector (Quantity d a) where
+instance (M.MVector U.MVector a) => M.MVector U.MVector (Quantity d a) where
   basicLength = M.basicLength . unMVQ
   basicUnsafeSlice m n = MV_Quantity . M.basicUnsafeSlice m n . unMVQ
   basicOverlaps u v = M.basicOverlaps (unMVQ u) (unMVQ v)
@@ -46,7 +45,7 @@ instance U.Unbox a => M.MVector U.MVector (Quantity d a) where
   basicInitialize = M.basicInitialize . unMVQ
 #endif
 
-instance U.Unbox a => G.Vector U.Vector (Quantity d a) where
+instance (G.Vector U.Vector a) => G.Vector U.Vector (Quantity d a) where
   basicUnsafeFreeze = liftM V_Quantity  . G.basicUnsafeFreeze . unMVQ
   basicUnsafeThaw   = liftM MV_Quantity . G.basicUnsafeThaw   . unVQ
   basicLength       = G.basicLength . unVQ
